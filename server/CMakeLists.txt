@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Sql Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Sql Network)
 find_package(Protobuf)
 
 # директория с прото файлами на директорию ниже текущего проекта
@@ -23,8 +23,12 @@ add_executable(server
   server.h
   server.cpp
   ${PROTO_FILES}
+  IDbHandler.h
+  structs.h
+  postgresdb.h postgresdb.cpp
 )
-target_link_libraries(server Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network ${PROTOBUF_LIBRARIES})
+target_link_libraries(server Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Network
+                                       Qt${QT_VERSION_MAJOR}::Sql ${PROTOBUF_LIBRARIES})
 
 include(GNUInstallDirs)
 install(TARGETS server

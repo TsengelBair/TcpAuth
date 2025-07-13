@@ -2,8 +2,11 @@
 #include <QDataStream>
 
 #include "server.h"
+#include "../IAuthRequest.pb.h"
+#include "IDbHandler.h"
+#include "structs.h"
 
-Server::Server()
+Server::Server(IDbHandler &db) : m_db(db)
 {
     if (this->listen(QHostAddress::LocalHost, 5000)) {
         qDebug() << "Listen";
@@ -50,11 +53,30 @@ void Server::handleClientRequest()
 
     QByteArray packet = socket->readAll();
     bool isValid = validatePacket(packet);
-    if (isValid) {
-        qDebug() << "ok";
+    if (!isValid) {
+        qDebug() << "Validation error";
+        return;
     }
-    else {
-        qDebug() << "error";
+
+    /// десериализовать
+    IAuthRequest authReq;
+    if (!authReq.ParseFromString(packet.mid(6).toStdString())) {
+        qDebug() << "Error while deserialize auth request";
+        return;
+    }
+
+    QString login = QString::fromStdString(authReq.login());
+    QString password = QString::fromStdString(authReq.password());
+
+    /// Извлечь тип запроса
+    RequestType reqType = static_cast<RequestType>(packet.at(5));
+    if (reqType == REGISTER_REQUEST) {
+        RegisterStatus res = m_db.registerUser(login, password);
+        qDebug() << res;
+    }
+    else if (reqType == LOGIN_REQUEST) {
+        AuthStatus res = m_db.authUser(login, password);
+        qDebug() << res;
     }
 }
 

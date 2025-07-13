@@ -1,12 +1,15 @@
 #include <QCoreApplication>
 
 #include "server.h"
+#include "postgresdb.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    Server server;
+    PostgresDB db("test_db");
+
+    Server server(db);
 
     return a.exec();
 }

@@ -3,10 +3,18 @@
 
 #include <QTcpServer>
 
+enum RequestType
+{
+    REGISTER_REQUEST = 0,
+    LOGIN_REQUEST = 1
+};
+
+class IDbHandler;
+
 class Server : public QTcpServer
 {
 public:
-    Server();
+    explicit Server(IDbHandler &db);
     ~Server();
 
 private slots:
@@ -17,6 +25,7 @@ private slots:
 
 private:
     QMap<qintptr, QTcpSocket*> m_sockets;
+    IDbHandler &m_db;
 };
 
 #endif // SERVER_H
